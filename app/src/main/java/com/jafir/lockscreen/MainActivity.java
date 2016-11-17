@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 设置单词信息
      * 由于数据库里面的信息 有些有特殊字符 '\<\br\>' 'r n'等
+     * 所以replace了
      *
      * @param word
      */
@@ -111,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //只过滤出中文
             String mean = mWord.getMeaning().replace("<br>", "");
+            /**
+             * 这里是 把意思拆解，  用'，'来分割成数组，然后检查是否填的是任意一个意思
+             */
             for (int i = 0; i < mean.length(); i++) {
                 Log.d("debug", "char:" + (int) mean.charAt(i));
             }
@@ -138,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
         wm = (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
         WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
 
+        /**
+         * 这里的type flag很关键
+         */
         wmParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
         wmParams.format = PixelFormat.OPAQUE;
         wmParams.flags = WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
@@ -361,6 +368,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 是否是所有意思中的任意一个
+     *
+     * @param s
+     * @return
+     */
     private boolean isContain(String s) {
         for (int i = 0; i < meanings.length; i++) {
             if (s.equals(meanings[i])) {

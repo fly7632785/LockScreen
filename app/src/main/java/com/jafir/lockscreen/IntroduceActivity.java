@@ -68,6 +68,13 @@ public class IntroduceActivity extends AppCompatActivity {
             mDays.setText("今天是第1天哦，加油，一定要坚持");
         }
 
+        /**
+         * 这里先隐藏了，弄个一个小机关
+         * 需要点很多次，才能开启开发者模式 才有关闭的按钮
+         * 开启开发者模式：需要多次点击才能开启，是一个不可见的view，见xml
+         * 主要这是 为了给我的那些朋友用的，不让他们能够轻易关掉这个功能
+         *
+         */
         openLl = findViewById(R.id.open_ll);
         openLl.setVisibility(View.GONE);
         PreferenceUtil.write(this, "common", "isOpen", true);
@@ -125,6 +132,13 @@ public class IntroduceActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 请求权限
+     *
+     * 由于miui系统很特殊，需要特别对待
+     *
+     *
+     */
     private void requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(IntroduceActivity.this)) {
