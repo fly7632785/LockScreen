@@ -7,7 +7,8 @@
 >对记单词很有帮助，俗话说好记性不如敲一遍。
 
 简书地址：http://www.jianshu.com/p/0bc3d3a65243
-APK:https://github.com/fly7632785/LockScreen/raw/master/out/app-debug.apk
+<br>
+APK:http://jafir-my-love.oss-cn-shanghai.aliyuncs.com/lockscreen.apk
 
 <br>
 ### 截图
