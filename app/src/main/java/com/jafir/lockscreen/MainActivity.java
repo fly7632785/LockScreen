@@ -1,6 +1,5 @@
 package com.jafir.lockscreen;
 
-import android.app.ProgressDialog;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -20,10 +19,12 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jafir.lockscreen.bean.Word;
+import com.jafir.lockscreen.bean.WordWithIndex;
 import com.jafir.lockscreen.util.DbUtil;
 import com.jafir.lockscreen.util.PreferenceUtil;
 import com.jafir.lockscreen.util.StringUtil;
@@ -35,8 +36,12 @@ import java.util.List;
 import java.util.Random;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+
+import static com.jafir.lockscreen.util.PreferenceUtil.write;
+import static com.jafir.lockscreen.util.StringUtil.filter;
 
 
 /**
@@ -56,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText mEngEditl;
     private EditText mChEditl;
 
+    //紧急进入按钮 双击进入
+    private View mUrgency;
+
     private RelativeLayout mWordLinear;
     private LinearLayout mChLinear;
     private LinearLayout mEngLinear;
@@ -67,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
             R.mipmap.night9, R.mipmap.night10, R.mipmap.night11
     };
     private int mCount = 20;
-    private ProgressDialog dialog;
     private Word mWord;
     private String[] meanings;
+    private ProgressBar mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +99,78 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0) {//加载数据
+                dismissDialog();
                 List<Word> word = (List<Word>) msg.obj;
-                mWord = word.get(new Random().nextInt(word.size()));
+                int orderIndex = getWordIndexByRandom();
+                mWord = word.get(orderIndex);
                 setView(mWord);
             }
 
         }
     };
+
+
+    /**
+     * 获取word的index（经过算法策略过后的）
+     */
+    private int getWordIndexByRandom() {
+        int index = PreferenceUtil.readInt(MainActivity.this, "common", "index", 0);
+        Log.d("debug", "index:::" + index);
+        //如果=0表示第一次进来  如果>=count表示轮完了一遍 重置
+        if (index >= mCount || index == 0) {
+            index = 0;
+            //重新打乱排序
+            setWordRandom();
+            //设置index 为0
+            PreferenceUtil.write(MainActivity.this, "common", "index", 0);
+        }
+        RealmResults<WordWithIndex> realmResults = getWordRandom();
+        //获取打乱顺序之后的 index
+        int orderIndex = realmResults.get(index).getIndex();
+        Log.d("debug", "orderindex:::" + orderIndex);
+        //保存数据库
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        //设置此下标已用
+        realmResults.get(index).setUsed(true);
+        realm.copyFromRealm(realmResults);
+        realm.commitTransaction();
+        PreferenceUtil.write(MainActivity.this, "common", "index", ++index);
+        return orderIndex;
+    }
+
+
+    /**
+     * 实现策略：
+     * <p>
+     * 一共20个单词，拿出来，打乱排序
+     * 然后之后的20词锁屏出现的单词 按照这个顺序，依次执行完一遍
+     * 然后再重新排序，避免出现有时候 老是随机出现一个单词，很多单词咩有出现过的情况
+     */
+    private void setWordRandom() {
+        Integer[] order = getRandomId(mCount);
+        RealmList<WordWithIndex> list = new RealmList<>();
+        for (int i = 0; i < order.length; i++) {
+            WordWithIndex wordWithIndex = new WordWithIndex();
+            Log.d("debug", "iiiindex:" + order[i]);
+            wordWithIndex.setIndex(order[i]);
+            list.add(wordWithIndex);
+        }
+//保存到数据库
+        final Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealm(list);
+        realm.commitTransaction();
+
+    }
+
+    private RealmResults<WordWithIndex> getWordRandom() {
+        final Realm realm = Realm.getDefaultInstance();
+        //list
+        RealmResults<WordWithIndex> realmResults = realm.where(WordWithIndex.class).findAll();
+        return realmResults;
+    }
+
 
     /**
      * 设置单词信息
@@ -118,8 +191,13 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < mean.length(); i++) {
                 Log.d("debug", "char:" + (int) mean.charAt(i));
             }
-            Log.d("debug", "过滤" + StringUtil.filter(mean));
-            meanings = StringUtil.filter(mWord.getMeaning().replace("<br>", "")).split(",");
+            Log.d("debug", "过滤" + filter(mean));
+            String atlerfiter = StringUtil.filter(mWord.getMeaning().replace("<br>", ""));
+            if (atlerfiter.contains("，")) {
+                meanings = atlerfiter.split("，");
+            } else {
+                meanings = atlerfiter.split(",");
+            }
             mExplain.setText(word.getMeaning().replace("<br>", ""));
 
             for (int i = 0; i < meanings.length; i++) {
@@ -141,18 +219,17 @@ public class MainActivity extends AppCompatActivity {
         viewgroup.setBackgroundResource(imgs[new Random().nextInt(5)]);
         wm = (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
         WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
-
         /**
          * 这里的type flag很关键
          */
         wmParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
         wmParams.format = PixelFormat.OPAQUE;
         wmParams.flags = WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR;
+                | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+        ;
         wmParams.width = getResources().getDisplayMetrics().widthPixels;
         wmParams.height = getResources().getDisplayMetrics().heightPixels;
         wm.addView(viewgroup, wmParams);
-
     }
 
 
@@ -174,14 +251,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initData() {
         Realm.init(this);
-
+//        setWordRandom();
         //计算使用天数 只要开启的时候才计入
         int days = PreferenceUtil.readInt(this, "common", "days", 0);
         //如果 日期不是今天 那么说明是不同天数
         if (!TimeUtil.getTodayDate().equals(PreferenceUtil.readString(this, "common", "date", "defaultTIme"))) {
             //天数+1
             days++;
-            PreferenceUtil.write(this, "common", "days", days);
+            write(this, "common", "days", days);
             loadData();
         } else {
             loadDataFromLocal();
@@ -210,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 
         }
-        mWord = result1.get(new Random().nextInt(result1.size()));
+        mWord = result1.get(getWordIndexByRandom());
         setView(mWord);
 
     }
@@ -219,10 +296,11 @@ public class MainActivity extends AppCompatActivity {
      * 一天一次 从数据库加载数据进来
      */
     private void loadData() {
+        showDialog();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                PreferenceUtil.write(MainActivity.this, "common", "date", TimeUtil.getTodayDate());
+                write(MainActivity.this, "common", "date", TimeUtil.getTodayDate());
                 SQLiteDatabase db = DbUtil.openDatabase(MainActivity.this);
                 WordsDao dao = new WordsDao(db);
                 List<Word> list = dao.getRandomWordList(mCount);
@@ -266,24 +344,28 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showDialog() {
-        if (dialog == null) {
-            dialog = new ProgressDialog(this);
-            dialog.setCancelable(false);
-        }
-        dialog.show();
+        mProgress.setVisibility(View.VISIBLE);
     }
 
     private void dismissDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
+        mProgress.setVisibility(View.GONE);
     }
 
     private void initView() {
+        mUrgency = viewgroup.findViewById(R.id.urgency);
+        mUrgency.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.this.finish();
+            }
+        });
+
         mName = (TextView) viewgroup.findViewById(R.id.name);
         mExplain = (TextView) viewgroup.findViewById(R.id.explain);
         mSoundmark = (TextView) viewgroup.findViewById(R.id.yinbiao);
         mExample = (TextView) viewgroup.findViewById(R.id.example);
+
+        mProgress = (ProgressBar) viewgroup.findViewById(R.id.progress);
 
         mEngEditl = (EditText) viewgroup.findViewById(R.id.type);
         mChEditl = (EditText) viewgroup.findViewById(R.id.type_ch);
@@ -325,6 +407,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+
                 if (!TextUtils.isEmpty(s.toString())) {
                     if (mWordLinear.getVisibility() != View.GONE) {
                         hideWord(true);
@@ -338,10 +421,12 @@ public class MainActivity extends AppCompatActivity {
                     mChLinear.setVisibility(View.VISIBLE);
                     mChEditl.requestFocus();
                 }
+                Log.d("debug", "onTextChanged");
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                Log.d("debug", "afterTextChanged");
             }
         });
         mChEditl.addTextChangedListener(new TextWatcher() {
@@ -396,21 +481,23 @@ public class MainActivity extends AppCompatActivity {
             a.setDuration(1500);
             AlphaAnimation nameAnimation = new AlphaAnimation(1, 0);
             nameAnimation.setDuration(300);
+            mCheck.setVisibility(View.VISIBLE);
             mName.startAnimation(nameAnimation);
             mExplain.startAnimation(nameAnimation);
             mSoundmark.startAnimation(nameAnimation);
             mExample.startAnimation(nameAnimation);
             mCheck.startAnimation(a);
             mWordLinear.setVisibility(View.GONE);
-            mCheck.setVisibility(View.VISIBLE);
+
         } else {
             AlphaAnimation a = new AlphaAnimation(0, 1);
             a.setDuration(1000);
+            mWordLinear.setVisibility(View.VISIBLE);
             mName.startAnimation(a);
             mExplain.startAnimation(a);
             mSoundmark.startAnimation(a);
             mExample.startAnimation(a);
-            mWordLinear.setVisibility(View.VISIBLE);
+
             mCheck.setVisibility(View.GONE);
         }
     }

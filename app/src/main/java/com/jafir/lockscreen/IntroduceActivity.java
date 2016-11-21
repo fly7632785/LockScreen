@@ -115,6 +115,7 @@ public class IntroduceActivity extends AppCompatActivity {
                 }
             }
         });
+        //由于使用toast类型window这里不需要请求权限了 4.0一下使用的是phone type,所以xml里面还是要配置
         requestPermission();
 
         mToGithub.setText(StringUtil.matcherSearchTitle(Color.BLUE, GITHUB, GITHUB_URL));
@@ -130,14 +131,14 @@ public class IntroduceActivity extends AppCompatActivity {
             }
         });
 
+
+        startService(new Intent(this, KeepAliveService.class));
     }
 
     /**
      * 请求权限
-     *
+     * <p>
      * 由于miui系统很特殊，需要特别对待
-     *
-     *
      */
     private void requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

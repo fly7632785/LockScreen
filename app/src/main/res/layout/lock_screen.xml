@@ -8,6 +8,10 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:orientation="vertical">
+        <View
+            android:layout_width="match_parent"
+            android:id="@+id/urgency"
+            android:layout_height="30dp"/>
 
         <RelativeLayout
             android:id="@+id/word_linear"
@@ -68,6 +72,15 @@
                     android:textColor="@android:color/white" />
 
             </LinearLayout>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_centerInParent="true"
+                android:id="@+id/progress"
+                android:visibility="gone"
+                android:indeterminateDrawable="@drawable/progress"
+                android:paddingTop="130dp"
+                android:layout_height="wrap_content" />
         </RelativeLayout>
 
         <LinearLayout

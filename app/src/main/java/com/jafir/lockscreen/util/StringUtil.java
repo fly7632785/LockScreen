@@ -68,7 +68,7 @@ public class StringUtil {
      * @Description : 过滤出中文 只有中文和,
      */
     public static String filter(String character) {
-        character = character.replaceAll("[^(\\u4e00-\\u9fa5,)]", "");
+        character = character.replaceAll("[^(\\u4e00-\\u9fa5,，)]", "");
         return character;
     }
 
