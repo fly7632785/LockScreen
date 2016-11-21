@@ -76,8 +76,8 @@ public class IntroduceActivity extends AppCompatActivity {
          *
          */
         openLl = findViewById(R.id.open_ll);
-        openLl.setVisibility(View.GONE);
-        PreferenceUtil.write(this, "common", "isOpen", true);
+//        openLl.setVisibility(View.GONE);
+//        PreferenceUtil.write(this, "common", "isOpen", true);
 
         kaifazhe = findViewById(R.id.kaifazhe);
         developer = (TextView) findViewById(R.id.developer);
@@ -103,20 +103,21 @@ public class IntroduceActivity extends AppCompatActivity {
             }
         });
         mSwitch.setChecked(PreferenceUtil.readBoolean(this, "common", "isOpen", false));
-
         mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     PreferenceUtil.write(IntroduceActivity.this, "common", "isOpen", true);
-//                    requestPermission();
+                    startService(new Intent(IntroduceActivity.this, KeepAliveService.class));
+                    requestPermission();
                 } else {
+                    stopService(new Intent(IntroduceActivity.this, KeepAliveService.class));
                     PreferenceUtil.write(IntroduceActivity.this, "common", "isOpen", false);
                 }
             }
         });
         //由于使用toast类型window这里不需要请求权限了 4.0一下使用的是phone type,所以xml里面还是要配置
-        requestPermission();
+//        requestPermission();
 
         mToGithub.setText(StringUtil.matcherSearchTitle(Color.BLUE, GITHUB, GITHUB_URL));
         mToGithub.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +133,7 @@ public class IntroduceActivity extends AppCompatActivity {
         });
 
 
-        startService(new Intent(this, KeepAliveService.class));
+
     }
 
     /**

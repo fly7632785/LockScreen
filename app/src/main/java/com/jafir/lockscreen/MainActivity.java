@@ -353,10 +353,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         mUrgency = viewgroup.findViewById(R.id.urgency);
-        mUrgency.setOnClickListener(new View.OnClickListener() {
+        mUrgency.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
                 MainActivity.this.finish();
+                return true;
             }
         });
 
@@ -364,12 +365,9 @@ public class MainActivity extends AppCompatActivity {
         mExplain = (TextView) viewgroup.findViewById(R.id.explain);
         mSoundmark = (TextView) viewgroup.findViewById(R.id.yinbiao);
         mExample = (TextView) viewgroup.findViewById(R.id.example);
-
         mProgress = (ProgressBar) viewgroup.findViewById(R.id.progress);
-
         mEngEditl = (EditText) viewgroup.findViewById(R.id.type);
         mChEditl = (EditText) viewgroup.findViewById(R.id.type_ch);
-
         mWordLinear = (RelativeLayout) viewgroup.findViewById(R.id.word_linear);
         mChLinear = (LinearLayout) viewgroup.findViewById(R.id.ch_linear);
         mEngLinear = (LinearLayout) viewgroup.findViewById(R.id.eng_linear);

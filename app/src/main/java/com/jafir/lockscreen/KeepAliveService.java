@@ -10,6 +10,9 @@ import android.support.annotation.Nullable;
 
 /**
  * Created by jafir on 16/11/18.
+ * 为了实现一个前台进程来保活
+ * 通常情况下 如果熄灭屏幕太久 会自动被杀掉
+ * 这样的话基本可以保活成功
  */
 
 public class KeepAliveService extends Service {
