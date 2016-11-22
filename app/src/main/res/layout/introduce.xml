@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="50dp"
+            android:padding="40dp"
             android:text="这是一个单词锁屏\n每次打开手机需要输入英文、中文任何一个意思才能解锁\n一切都是为了加强大家对单词的记忆
         此软件收录了cet6级词汇，希望对大家有帮助"
             android:textSize="15sp" />
@@ -37,6 +37,33 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/img_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="自定义背景"
+                android:textSize="15sp" />
+            <ImageView
+                android:id="@+id/img"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="40dp" />
+           <ImageView
+               android:id="@+id/goto_img"
+               android:src="@mipmap/common_goto"
+               android:padding="10dp"
+               android:layout_width="40dp"
+               android:layout_height="40dp" />
         </LinearLayout>
         <TextView
             android:id="@+id/days"

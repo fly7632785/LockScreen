@@ -2,7 +2,10 @@ package com.jafir.lockscreen;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -10,10 +13,12 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +32,10 @@ import com.jafir.lockscreen.util.ToastUtil;
 import com.jafir.lockscreen.util.WindowUtils;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import cn.finalteam.galleryfinal.GalleryFinal;
+import cn.finalteam.galleryfinal.model.PhotoInfo;
 
 /**
  * Created by jafir on 16/11/16.
@@ -41,6 +50,9 @@ public class IntroduceActivity extends AppCompatActivity {
     private TextView mToGithub;
     private TextView mDays;
 
+    private ImageView mToImg, mImg;
+
+    private View imgLL;
     private View openLl;
     private View kaifazhe;
     TextView developer;
@@ -48,6 +60,7 @@ public class IntroduceActivity extends AppCompatActivity {
     private long MIN_CLICK_INTERVAL = 1000;
     private long MIN_CLICK = 6;
     private int mSecretNumber;
+    private int REQUEST_CODE_GALLERY = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +81,25 @@ public class IntroduceActivity extends AppCompatActivity {
         } else {
             mDays.setText("今天是第1天哦，加油，一定要坚持");
         }
+
+        mImg = (ImageView) findViewById(R.id.img);
+        String imgPath = PreferenceUtil.readString(IntroduceActivity.this, "common", "imgPaht", "null");
+        if (!imgPath.equals("null")) {
+            Bitmap bm = BitmapFactory.decodeFile(imgPath);
+            if (bm != null && mImg != null) {
+                mImg.setImageBitmap(bm);
+            }
+        } else {
+            mImg.setImageBitmap(null);
+        }
+        mToImg = (ImageView) findViewById(R.id.goto_img);
+        mToImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                choose();
+            }
+        });
+
 
         /**
          * 这里先隐藏了，弄个一个小机关
@@ -135,7 +167,47 @@ public class IntroduceActivity extends AppCompatActivity {
         });
 
 
+    }
 
+    private void choose() {
+        new AlertDialog.Builder(this)
+                .setTitle("选择背景图片")
+                .setPositiveButton("自定义选择", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        chooseImg();
+                    }
+                })
+                .setNegativeButton("使用默认的", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mImg.setImageBitmap(null);
+                        PreferenceUtil.write(IntroduceActivity.this, "common", "imgPaht", "null");
+                    }
+                }).show();
+
+    }
+
+    private void chooseImg() {
+        GalleryFinal.openGallerySingle(REQUEST_CODE_GALLERY, new GalleryFinal.OnHanlderResultCallback() {
+            @Override
+            public void onHanlderSuccess(int reqeustCode, List<PhotoInfo> resultList) {
+                String path = null;
+                for (PhotoInfo info : resultList
+                        ) {
+                    path = info.getPhotoPath();
+                    PreferenceUtil.write(IntroduceActivity.this, "common", "imgPaht", path);
+                    Bitmap bm = BitmapFactory.decodeFile(path);
+                    if (bm != null && mImg != null) {
+                        mImg.setImageBitmap(bm);
+                    }
+                }
+            }
+
+            @Override
+            public void onHanlderFailure(int requestCode, String errorMsg) {
+            }
+        });
     }
 
     /**

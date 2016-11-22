@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,12 +52,11 @@ import static com.jafir.lockscreen.util.StringUtil.filter;
 /**
  * create by jafir 2016/11/14
  * 这是锁屏界面的activity
- *
+ * <p>
  * 原理就是 在activity中控制 window的锁屏显示
- *
+ * <p>
  * 代码比较简单，个人觉得，之所以冗长，主要是因为有一些动画，
  * 还有就是 算法策略 对数据库的操作 这些比较繁杂
- *
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             R.mipmap.night9, R.mipmap.night10, R.mipmap.night11
     };
     //每天默认记多少单词 ，就在数据库抽选 多少单词，然后在里面轮着记
-    private static final int COUNT = 5;
+    private static final int COUNT = 20;
     private int mCount = COUNT;
     private Word mWord;
     private List<Word> mWords;
@@ -255,7 +255,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void initWindow() {
         viewgroup = (ViewGroup) View.inflate(this, R.layout.lock_screen, null);
-        viewgroup.setBackgroundResource(imgs[new Random().nextInt(5)]);
+        String imgPath = PreferenceUtil.readString(MainActivity.this, "common", "imgPaht", "null");
+        if (!imgPath.equals("null")) {
+            Drawable dw = Drawable.createFromPath(imgPath);
+            if (dw != null) {
+                viewgroup.setBackground(dw);
+            }
+        } else {
+            viewgroup.setBackgroundResource(imgs[new Random().nextInt(imgs.length)]);
+        }
         wm = (WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE);
         WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
         /**
@@ -490,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
                     mWords.remove(mWord);
                 }
                 mCount--;
-                Log.d("debug","mCount ::" +mCount);
+                Log.d("debug", "mCount ::" + mCount);
                 PreferenceUtil.write(MainActivity.this, "common", "count", mCount);
                 //如果==0说明全部记完了 从本地数据库加载啊
                 //设置 index 初始化为0
@@ -521,6 +529,7 @@ public class MainActivity extends AppCompatActivity {
         mEngEditl.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                mEngEditl.requestFocus();
                 hideWord(true);
                 return false;
             }
