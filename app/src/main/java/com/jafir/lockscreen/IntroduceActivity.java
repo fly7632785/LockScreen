@@ -24,6 +24,7 @@ import com.jafir.lockscreen.app.AppContext;
 import com.jafir.lockscreen.util.PreferenceUtil;
 import com.jafir.lockscreen.util.StringUtil;
 import com.jafir.lockscreen.util.ToastUtil;
+import com.jafir.lockscreen.util.WindowUtils;
 
 import java.util.ArrayList;
 
@@ -78,6 +79,8 @@ public class IntroduceActivity extends AppCompatActivity {
         openLl = findViewById(R.id.open_ll);
 //        openLl.setVisibility(View.GONE);
 //        PreferenceUtil.write(this, "common", "isOpen", true);
+        //由于使用toast类型window这里不需要请求权限了 4.0一下使用的是phone type,所以xml里面还是要配置
+//        requestPermission();
 
         kaifazhe = findViewById(R.id.kaifazhe);
         developer = (TextView) findViewById(R.id.developer);
@@ -116,8 +119,7 @@ public class IntroduceActivity extends AppCompatActivity {
                 }
             }
         });
-        //由于使用toast类型window这里不需要请求权限了 4.0一下使用的是phone type,所以xml里面还是要配置
-//        requestPermission();
+
 
         mToGithub.setText(StringUtil.matcherSearchTitle(Color.BLUE, GITHUB, GITHUB_URL));
         mToGithub.setOnClickListener(new View.OnClickListener() {

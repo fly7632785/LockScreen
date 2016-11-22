@@ -71,7 +71,7 @@ public class WordsDao {
                 for (int j = 0; j < n; j++) {
 //                  有多跳数据 随机取出index
                     int index = random.nextInt(cursor.getCount());
-                    if(cursor.moveToPosition(index)){
+                    if (cursor.moveToPosition(index)) {
                         Word bean = getWord(cursor);
                         proList.add(bean);
                     }
@@ -95,9 +95,29 @@ public class WordsDao {
         String meaning = cursor.getString(cursor.getColumnIndex("meaning"));
         String exmple = cursor.getString(cursor.getColumnIndex("lx"));
         Word bean = new Word();
+        bean.setId(String.valueOf(id));
         bean.setWord(word);
         bean.setExmple(exmple);
         bean.setMeaning(meaning);
         return bean;
+    }
+
+
+    /**
+     * 删除
+     * <p>
+     * 在选择 不再出现之后 就会从数据库删除
+     *
+     * @param id
+     */
+    public void deleteById(String id) {
+        try {
+            db.beginTransaction();
+            db.delete("cetsix", "ID=?", new String[]{id});
+            db.endTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

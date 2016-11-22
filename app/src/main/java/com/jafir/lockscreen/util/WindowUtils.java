@@ -1,4 +1,4 @@
-package com.jafir.lockscreen;
+package com.jafir.lockscreen.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -7,22 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.PixelFormat;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Toast;
-
-import com.jafir.lockscreen.util.PreferenceUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;

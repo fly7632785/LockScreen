@@ -9,17 +9,37 @@ import io.realm.RealmObject;
 public class Word extends RealmObject {
 
 
+    private String id;
     private String word;
     private String meaning;
     private String exmple;
+    private boolean isFromRealm;
 
     @Override
     public String toString() {
         return "Word{" +
-                "word='" + word + '\'' +
+                "id='" + id + '\'' +
+                ", word='" + word + '\'' +
                 ", meaning='" + meaning + '\'' +
                 ", exmple='" + exmple + '\'' +
+                ", isFromRealm=" + isFromRealm +
                 '}';
+    }
+
+    public boolean isFromRealm() {
+        return isFromRealm;
+    }
+
+    public void setFromRealm(boolean fromRealm) {
+        isFromRealm = fromRealm;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getWord() {
