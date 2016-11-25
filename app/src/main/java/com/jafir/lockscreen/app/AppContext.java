@@ -6,6 +6,7 @@ import android.graphics.Color;
 
 import com.jafir.lockscreen.R;
 import com.jafir.lockscreen.util.GlideImageLoader;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import cn.finalteam.galleryfinal.BuildConfig;
 import cn.finalteam.galleryfinal.CoreConfig;
@@ -33,7 +34,7 @@ public class AppContext extends Application {
 
         sceenWidth = this.getResources().getDisplayMetrics().widthPixels;
         sceenHeight = this.getResources().getDisplayMetrics().heightPixels;
-
+        CrashReport.initCrashReport(getApplicationContext(), "900059419", false);
 
         ThemeConfig theme = new ThemeConfig.Builder()
                 //两种方法都可以

@@ -28,15 +28,26 @@
             android:name=".KeepAliveService"
             android:process=":lockscreen"></service>
 
-        <receiver android:name=".ScreenOnReceiver">
+        <receiver android:name=".ScreenOnReceiver"
+            android:exported="true"
+            >
             <intent-filter android:priority="90000">
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
+
+        <meta-data android:value="5834f73b310c931f1a001f94" android:name="UMENG_APPKEY"/>
+        <meta-data android:value="normal" android:name="UMENG_CHANNEL"/>
     </application>
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!--友盟-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_LOGS" />
 </manifest>

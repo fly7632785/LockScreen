@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -45,6 +44,7 @@ import io.realm.RealmList;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
+import static com.jafir.lockscreen.util.PreferenceUtil.readInt;
 import static com.jafir.lockscreen.util.PreferenceUtil.write;
 import static com.jafir.lockscreen.util.StringUtil.filter;
 
@@ -58,7 +58,7 @@ import static com.jafir.lockscreen.util.StringUtil.filter;
  * 代码比较简单，个人觉得，之所以冗长，主要是因为有一些动画，
  * 还有就是 算法策略 对数据库的操作 这些比较繁杂
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private TextView mName;
     private TextView mExplain;
@@ -146,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
      * 获取word的index（经过算法策略过后的）
      */
     private int getWordIndexByRandom(int count) {
-        int index = PreferenceUtil.readInt(MainActivity.this, "common", "index", 0);
-        int oldCount = PreferenceUtil.readInt(MainActivity.this, "common", "count", COUNT);
+        int index = readInt(MainActivity.this, "common", "index", 0);
+        int oldCount = readInt(MainActivity.this, "common", "count", COUNT);
         Log.d("debug", "index:::" + index);
         //如果 count减小到0 说明这轮已经记完了 就要重新初始化为count
         if (oldCount == 0) {
@@ -300,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
         Realm.init(this);
 //        setWordRandom();
         //计算使用天数 只要开启的时候才计入
-        int days = PreferenceUtil.readInt(this, "common", "days", 0);
-        int count = PreferenceUtil.readInt(this, "common", "count", COUNT);
+        int days = readInt(this, "common", "days", 0);
+        int count = readInt(this, "common", "count", COUNT);
         mCount = count;
         //如果 日期不是今天 那么说明是不同天数
         if (!TimeUtil.getTodayDate().equals(PreferenceUtil.readString(this, "common", "date", "defaultTIme"))
@@ -342,7 +342,12 @@ public class MainActivity extends AppCompatActivity {
 //            }
         }
         mWords = result1;
-        mWord = result1.get(getWordIndexByRandom(mWords.size()));
+        int index = getWordIndexByRandom(mWords.size());
+        if (index >= result1.size()) {
+            loadData();
+            return;
+        }
+        mWord = result1.get(index);
         setView(mWord);
 
     }
@@ -551,6 +556,13 @@ public class MainActivity extends AppCompatActivity {
                     hideSoftInput();
                 }
                 if (s.toString().equals(mWord.getWord())) {
+
+                    //增加次数
+                    int times = PreferenceUtil.readInt(MainActivity.this, "common", "times", 0);
+                    times++;
+                    PreferenceUtil.write(MainActivity.this, "common", "times", times);
+
+
                     hideSoftInput();
                     finish();
 //                    mEngLinear.setVisibility(View.GONE);

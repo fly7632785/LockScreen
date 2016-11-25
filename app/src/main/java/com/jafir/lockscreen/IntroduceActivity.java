@@ -14,7 +14,6 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -41,7 +40,7 @@ import cn.finalteam.galleryfinal.model.PhotoInfo;
  * Created by jafir on 16/11/16.
  */
 
-public class IntroduceActivity extends AppCompatActivity {
+public class IntroduceActivity extends BaseActivity {
 
 
     private static final String GITHUB = "github: https://github.com/fly7632785";
@@ -76,10 +75,11 @@ public class IntroduceActivity extends AppCompatActivity {
         mToGithub = (TextView) findViewById(R.id.togithub);
         mDays = (TextView) findViewById(R.id.days);
         int days = PreferenceUtil.readInt(this, "common", "days", 0);
+        int times = PreferenceUtil.readInt(this, "common", "times", 0);
         if (days > 0) {
-            mDays.setText("太棒了！你已经坚持了" + days + "天！");
+            mDays.setText("你已经坚持了" + days + "天！刷了" + times + "次\n太棒了！");
         } else {
-            mDays.setText("今天是第1天哦，加油，一定要坚持");
+            mDays.setText("今天是第1天哦，刷了"+times+"次！\n加油，一定要坚持");
         }
 
         mImg = (ImageView) findViewById(R.id.img);
@@ -137,13 +137,13 @@ public class IntroduceActivity extends AppCompatActivity {
                 }
             }
         });
+        startService(new Intent(IntroduceActivity.this, KeepAliveService.class));
         mSwitch.setChecked(PreferenceUtil.readBoolean(this, "common", "isOpen", false));
         mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     PreferenceUtil.write(IntroduceActivity.this, "common", "isOpen", true);
-                    startService(new Intent(IntroduceActivity.this, KeepAliveService.class));
                     requestPermission();
                 } else {
                     stopService(new Intent(IntroduceActivity.this, KeepAliveService.class));

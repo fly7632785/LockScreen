@@ -47,6 +47,7 @@ public class KeepAliveService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        startService(new Intent(this, KeepAliveService.class));
         unregisterReceiver(receiver);
     }
 }
