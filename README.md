@@ -33,10 +33,8 @@
 <br>
 简书地址：http://www.jianshu.com/p/0bc3d3a65243
 <br>
-APK:http://jafir-my-love.oss-cn-shanghai.aliyuncs.com/lockscreen.apk
-
-<br>
-### 截图
+APK:https://github.com/fly7632785/LockScreen/blob/master/out/app-debug.apk
+# 截图
 <img src="out/shot1.png" width="40%"/>
 <img src="out/shot2.png" width="40%"/>
 <img src="out/shot3.png" width="40%"/>
