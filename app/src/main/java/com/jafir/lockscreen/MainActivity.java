@@ -112,11 +112,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
         if (!PreferenceUtil.readBoolean(this, "common", "isOpen")) {
             finish();
             return;
         }
-        registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
         setContentView(R.layout.activity_main);
         overridePendingTransition(0, 0);
         initWindow();
@@ -673,6 +673,7 @@ public class MainActivity extends BaseActivity {
         if (wm != null) {
             wm.removeView(viewgroup);
         }
+
         unregisterReceiver(receiver);
         super.onDestroy();
     }
